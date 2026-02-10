@@ -16,17 +16,25 @@ return new class extends Migration
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->text('name');
             $table->text('description')->nullable();
-            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
+            $table->uuid('owner_id');
+            $table->foreign('owner_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
 
         Schema::create('group_users', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
-            $table->foreignId('group_id')->constrained('groups')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->uuid('group_id');
+            $table->uuid('user_id');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+
+            $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

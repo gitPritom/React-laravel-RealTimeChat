@@ -15,20 +15,34 @@ return new class extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->text('message')->nullable();
-            $table->foreignId('sender_id')->constrained('users');
-            $table->foreignId('receiver_id')->nullable()->constrained('users');
-            $table->foreignId('group_id')->nullable()->constrained('groups');
-            $table->foreignId('conversation_id')->nullable()->constrained('conversations');
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+
+            $table->uuid('sender_id');
+            $table->uuid('receiver_id')->nullable();
+            $table->uuid('group_id')->nullable();
+            $table->uuid('conversation_id')->nullable();
+
+            $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
+            $table->foreign('conversation_id')->references('id')->on('conversations')->onDelete('cascade');
+
+            $table->timestamps();
         });
 
         Schema::table('groups', function (Blueprint $table) {
-            $table->foreignId('last_message_id')->nullable()->constrained('messages');
+            $table->uuid('last_message_id')->nullable();
+            $table->foreign('last_message_id')
+                ->references('id')
+                ->on('messages')
+                ->nullOnDelete();
         });
 
         Schema::table('conversations', function (Blueprint $table) {
-            $table->foreignId('last_message_id')->nullable()->constrained('messages');
+            $table->uuid('last_message_id')->nullable();
+            $table->foreign('last_message_id')
+                ->references('id')
+                ->on('messages')
+                ->nullOnDelete();
         });
     }
 

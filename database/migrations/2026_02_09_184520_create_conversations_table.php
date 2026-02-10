@@ -14,8 +14,10 @@ return new class extends Migration
     {
         Schema::create('conversations', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
-            $table->foreignId('user_id1')->constrained('users');
-            $table->foreignId('user_id2')->constrained('users');
+            $table->uuid('user_id1');
+            $table->foreign('user_id1')->references('id')->on('users');
+            $table->uuid('user_id2');
+            $table->foreign('user_id2')->references('id')->on('users');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
